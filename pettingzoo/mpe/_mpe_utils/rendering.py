@@ -11,21 +11,59 @@ from gym import error
 try:
     import pyglet
 except ImportError:
-    raise ImportError("HINT: you can install pyglet directly via 'pip install pyglet'. But if you really just want to install all Gym dependencies and not have to think about it, 'pip install -e .[all]' or 'pip install gym[all]' will do it.")
+    raise ImportError(
+        "HINT: you can install pyglet directly via 'pip install pyglet'. But if you really just want to install all Gym dependencies and not have to think about it, 'pip install -e .[all]' or 'pip install gym[all]' will do it."
+    )
 
 try:
-    from pyglet.gl import glEnable, glHint, glLineWidth, glBlendFunc, glBegin, glPushMatrix, glTranslatef, glClearColor, glRotatef, glScalef, glPopMatrix, glColor4f, glLineStipple, glDisable, glVertex3f, glEnd, glVertex2f, gluOrtho2D
+    from pyglet.gl import (
+        glEnable,
+        glHint,
+        glLineWidth,
+        glBlendFunc,
+        glBegin,
+        glPushMatrix,
+        glTranslatef,
+        glClearColor,
+        glRotatef,
+        glScalef,
+        glPopMatrix,
+        glColor4f,
+        glLineStipple,
+        glDisable,
+        glVertex3f,
+        glEnd,
+        glVertex2f,
+        gluOrtho2D,
+    )
 except ImportError:
-    raise ImportError("""Error occured while running `from pyglet.gl import ...`
-            HINT: make sure you have OpenGL install. On Ubuntu, you can run 'apt-get install python-opengl'. If you're running on a server, you may need a virtual frame buffer; something like this should work: 'xvfb-run -s \"-screen 0 1400x900x24\" python <your_script.py>'""")
+    raise ImportError(
+        """Error occured while running `from pyglet.gl import ...`
+            HINT: make sure you have OpenGL install. On Ubuntu, you can run 'apt-get install python-opengl'. If you're running on a server, you may need a virtual frame buffer; something like this should work: 'xvfb-run -s \"-screen 0 1400x900x24\" python <your_script.py>'"""
+    )
 
-from pyglet.gl import GL_BLEND, GL_LINE_SMOOTH, GL_LINE_SMOOTH_HINT, GL_NICEST, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_LINE_STIPPLE, GL_POINTS, GL_QUADS, GL_LINE_LOOP, GL_POLYGON, GL_TRIANGLES, GL_LINE_STRIP, GL_LINES
+from pyglet.gl import (
+    GL_BLEND,
+    GL_LINE_SMOOTH,
+    GL_LINE_SMOOTH_HINT,
+    GL_NICEST,
+    GL_SRC_ALPHA,
+    GL_ONE_MINUS_SRC_ALPHA,
+    GL_LINE_STIPPLE,
+    GL_POINTS,
+    GL_QUADS,
+    GL_LINE_LOOP,
+    GL_POLYGON,
+    GL_TRIANGLES,
+    GL_LINE_STRIP,
+    GL_LINES,
+)
 import math
 import numpy as np
 
 if "Apple" in sys.version:
-    if 'DYLD_FALLBACK_LIBRARY_PATH' in os.environ:
-        os.environ['DYLD_FALLBACK_LIBRARY_PATH'] += ':/usr/lib'
+    if "DYLD_FALLBACK_LIBRARY_PATH" in os.environ:
+        os.environ["DYLD_FALLBACK_LIBRARY_PATH"] += ":/usr/lib"
 
 
 RAD2DEG = 57.29577951308232
@@ -42,7 +80,11 @@ def get_display(spec):
     elif isinstance(spec, six.string_types):
         return pyglet.canvas.Display(spec)
     else:
-        raise error.Error('Invalid display specification: {}. (Must be a string like :0 or None.)'.format(spec))
+        raise error.Error(
+            "Invalid display specification: {}. (Must be a string like :0 or None.)".format(
+                spec
+            )
+        )
 
 
 class Viewer(object):
@@ -84,8 +126,8 @@ class Viewer(object):
         scalex = self.width / (right - left)
         scaley = self.height / (top - bottom)
         self.transform = Transform(
-            translation=(-left * scalex, -bottom * scaley),
-            scale=(scalex, scaley))
+            translation=(-left * scalex, -bottom * scaley), scale=(scalex, scaley)
+        )
 
     def add_geom(self, geom):
         self.geoms.append(geom)
@@ -155,7 +197,9 @@ class Viewer(object):
 
     def get_array(self):
         self.window.flip()
-        image_data = pyglet.image.get_buffer_manager().get_color_buffer().get_image_data()
+        image_data = (
+            pyglet.image.get_buffer_manager().get_color_buffer().get_image_data()
+        )
         self.window.flip()
         arr = np.fromstring(image_data.get_data(), dtype=np.uint8, sep='')
         arr = arr.reshape(self.height, self.width, 4)
@@ -207,7 +251,9 @@ class Transform(Attr):
 
     def enable(self):
         glPushMatrix()
-        glTranslatef(self.translation[0], self.translation[1], 0)  # translate to GL loc ppint
+        glTranslatef(
+            self.translation[0], self.translation[1], 0
+        )  # translate to GL loc ppint
         glRotatef(RAD2DEG * self.rotation, 0, 0, 1.0)
         glScalef(self.scale[0], self.scale[1], 1)
 
@@ -268,26 +314,30 @@ class TextLine:
         self.window = window
         pyglet.font.add_file(os.path.join(os.path.dirname(__file__), "secrcode.ttf"))
         self.label = None
-        self.set_text('')
+        self.set_text("")
 
     def render(self):
         if self.label is not None:
             self.label.draw()
 
     def set_text(self, text):
-        if pyglet.font.have_font('Courier'):
+        if pyglet.font.have_font("Courier"):
             font = "Courier"
-        elif pyglet.font.have_font('Secret Code'):
+        elif pyglet.font.have_font("Secret Code"):
             font = "Secret Code"
         else:
             return
 
-        self.label = pyglet.text.Label(text,
-                                       font_name=font,
-                                       color=(0, 0, 0, 255),
-                                       font_size=25,
-                                       x=0, y=self.idx * 40 + 20,
-                                       anchor_x="left", anchor_y="bottom")
+        self.label = pyglet.text.Label(
+            text,
+            font_name=font,
+            color=(0, 0, 0, 255),
+            font_size=25,
+            x=0,
+            y=self.idx * 40 + 20,
+            anchor_x="left",
+            anchor_y="bottom",
+        )
 
         self.label.draw()
 
@@ -308,7 +358,12 @@ class FilledPolygon(Geom):
             glVertex3f(p[0], p[1], 0)  # draw each vertex
         glEnd()
 
-        color = (self._color.vec4[0] * 0.5, self._color.vec4[1] * 0.5, self._color.vec4[2] * 0.5, self._color.vec4[3] * 0.5)
+        color = (
+            self._color.vec4[0] * 0.5,
+            self._color.vec4[1] * 0.5,
+            self._color.vec4[2] * 0.5,
+            self._color.vec4[3] * 0.5,
+        )
         glColor4f(*color)
         glBegin(GL_LINE_LOOP)
         for p in self.v:
@@ -403,7 +458,9 @@ class Image(Geom):
         self.flip = False
 
     def render1(self):
-        self.img.blit(-self.width / 2, -self.height / 2, width=self.width, height=self.height)
+        self.img.blit(
+            -self.width / 2, -self.height / 2, width=self.width, height=self.height
+        )
 
 
 class SimpleImageViewer(object):
@@ -415,12 +472,20 @@ class SimpleImageViewer(object):
     def imshow(self, arr):
         if self.window is None:
             height, width, channels = arr.shape
-            self.window = pyglet.window.Window(width=width, height=height, display=self.display)
+            self.window = pyglet.window.Window(
+                width=width, height=height, display=self.display
+            )
             self.width = width
             self.height = height
             self.isopen = True
-        assert arr.shape == (self.height, self.width, 3), "You passed in an image with the wrong number shape"
-        image = pyglet.image.ImageData(self.width, self.height, 'RGB', arr.tobytes(), pitch=self.width * -3)
+        assert arr.shape == (
+            self.height,
+            self.width,
+            3,
+        ), "You passed in an image with the wrong number shape"
+        image = pyglet.image.ImageData(
+            self.width, self.height, "RGB", arr.tobytes(), pitch=self.width * -3
+        )
         self.window.clear()
         self.window.switch_to()
         self.window.dispatch_events()

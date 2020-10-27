@@ -14,6 +14,7 @@ def make_env(raw_env):
         env = wrappers.NanNoOpWrapper(env, 0, backup_policy)
         env = wrappers.OrderEnforcingWrapper(env)
         return env
+
     return env
 
 
@@ -35,7 +36,9 @@ class SimpleEnv(AECEnv):
 
         self.num_agents = len(self.world.agents)
         self.agents = [agent.name for agent in self.world.agents]
-        self._index_map = {agent.name: idx for idx, agent in enumerate(self.world.agents)}
+        self._index_map = {
+            agent.name: idx for idx, agent in enumerate(self.world.agents)
+        }
 
         self._agent_selector = agent_selector(self.agents)
 
@@ -51,7 +54,12 @@ class SimpleEnv(AECEnv):
 
             obs_dim = len(self.scenario.observation(agent, self.world))
             self.action_spaces[agent.name] = spaces.Discrete(space_dim)
-            self.observation_spaces[agent.name] = spaces.Box(low=-np.float32(np.inf), high=+np.float32(np.inf), shape=(obs_dim,), dtype=np.float32)
+            self.observation_spaces[agent.name] = spaces.Box(
+                low=-np.float32(np.inf),
+                high=+np.float32(np.inf),
+                shape=(obs_dim,),
+                dtype=np.float32,
+            )
 
         self.steps = 0
 
@@ -63,12 +71,14 @@ class SimpleEnv(AECEnv):
         self.np_random, seed = seeding.np_random(seed)
 
     def observe(self, agent):
-        return self.scenario.observation(self.world.agents[self._index_map[agent]], self.world).astype(np.float32)
+        return self.scenario.observation(
+            self.world.agents[self._index_map[agent]], self.world
+        ).astype(np.float32)
 
     def reset(self, observe=True):
         self.scenario.reset_world(self.world, self.np_random)
 
-        self.rewards = {name: 0. for name in self.agents}
+        self.rewards = {name: 0.0 for name in self.agents}
         self.dones = {name: False for name in self.agents}
         self.infos = {name: {} for name in self.agents}
 
@@ -100,14 +110,17 @@ class SimpleEnv(AECEnv):
 
         self.world.step()
 
-        global_reward = 0.
+        global_reward = 0.0
         if self.local_ratio is not None:
             global_reward = float(self.scenario.global_reward(self.world))
 
         for agent in self.world.agents:
             agent_reward = float(self.scenario.reward(agent, self.world))
             if self.local_ratio is not None:
-                reward = global_reward * (1 - self.local_ratio) + agent_reward * self.local_ratio
+                reward = (
+                    global_reward * (1 - self.local_ratio)
+                    + agent_reward * self.local_ratio
+                )
             else:
                 reward = agent_reward
 
@@ -130,7 +143,7 @@ class SimpleEnv(AECEnv):
             if action[0] == 3:
                 agent.action.u[1] = -1.0
             if action[0] == 4:
-                agent.action.u[1] = +1.
+                agent.action.u[1] = +1.0
 
             sensitivity = 5.0
             if agent.accel is not None:
@@ -166,7 +179,7 @@ class SimpleEnv(AECEnv):
             next_observation = None
         return next_observation
 
-    def render(self, mode='human'):
+    def render(self, mode="human"):
         from . import rendering
 
         if self.viewer is None:
@@ -182,7 +195,7 @@ class SimpleEnv(AECEnv):
             for entity in self.world.entities:
                 geom = rendering.make_circle(entity.size)
                 xform = rendering.Transform()
-                if 'agent' in entity.name:
+                if "agent" in entity.name:
                     geom.set_color(*entity.color[:3], alpha=0.5)
                 else:
                     geom.set_color(*entity.color[:3])
@@ -203,18 +216,18 @@ class SimpleEnv(AECEnv):
                     self.viewer.text_lines.append(tline)
                     idx += 1
 
-        alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+        alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
         # for agent in self.world.agents:
         idx = 0
         for idx, other in enumerate(self.world.agents):
             if other.silent:
                 continue
             if np.all(other.state.c == 0):
-                word = '_'
+                word = "_"
             else:
                 word = alphabet[np.argmax(other.state.c)]
 
-            message = (other.name + ' sends ' + word + '   ')
+            message = other.name + " sends " + word + "   "
 
             self.viewer.text_lines[idx].set_text(message)
             idx += 1
@@ -227,7 +240,7 @@ class SimpleEnv(AECEnv):
         for e, entity in enumerate(self.world.entities):
             self.render_geoms_xform[e].set_translation(*entity.state.p_pos)
         # render to display or array
-        return self.viewer.render(return_rgb_array=mode == 'rgb_array')
+        return self.viewer.render(return_rgb_array=mode == "rgb_array")
 
     # reset rendering assets
     def _reset_render(self):
