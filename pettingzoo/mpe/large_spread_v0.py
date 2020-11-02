@@ -10,7 +10,7 @@ class raw_env(SimpleEnv):
         ), "local_ratio is a proportion. Must be between 0 and 1."
         scenario = Scenario()
         world = scenario.make_world(N, False, [5, 5])
-        super().__init__(scenario, world, max_frames, seed, local_ratio)
+        super().__init__(scenario, world, max_frames, local_ratio)
 
 
 env = make_env(raw_env)
