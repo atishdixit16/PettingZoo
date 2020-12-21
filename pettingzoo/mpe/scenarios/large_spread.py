@@ -1,16 +1,18 @@
 import numpy as np
 from .._mpe_utils.core import World, Agent, Landmark
 from .._mpe_utils.scenario import BaseScenario
-
+import random
 
 class Scenario(BaseScenario):
-    def make_world(self, N, cooperative, groups):
+    def make_world(self, groups, cooperative=False, shuffle_obs=False):
         world = World()
         # set any world properties first
         world.dim_c = 2
-        num_agents = N
+        num_agents = sum(groups)
         num_landmarks = len(groups)
         world.collaborative = True
+
+        self.shuffle_obs = shuffle_obs
 
         self.cooperative = cooperative
         self.groups = groups
@@ -20,7 +22,6 @@ class Scenario(BaseScenario):
         ]
         # generate colors:
         self.colors = [np.random.random(3) for _ in groups]
-        assert sum(groups) == N
 
         # add agents
         world.agents = [Agent() for i in range(num_agents)]
@@ -135,4 +136,10 @@ class Scenario(BaseScenario):
         # return np.concatenate(
         #     [agent.state.p_vel] + [agent.state.p_pos] + entity_pos + other_pos + comm
         # )
-        return np.concatenate([agent.state.p_vel] + [agent.state.p_pos] + entity_pos)
+        x = np.concatenate([agent.state.p_vel] + [agent.state.p_pos] + entity_pos)
+        if self.shuffle_obs:
+            x = list(x)
+            random.Random(self.group_indices[world.agents.index(agent)]).shuffle(x)
+            x = np.array(x)
+        return x
+

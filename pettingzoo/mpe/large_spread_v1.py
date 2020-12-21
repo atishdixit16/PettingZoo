@@ -4,12 +4,12 @@ from pettingzoo.utils.to_parallel import parallel_wrapper_fn
 
 
 class raw_env(SimpleEnv):
-    def __init__(self, seed=None, N=10, local_ratio=0.5, max_frames=100):
+    def __init__(self, seed=None, local_ratio=0.5, max_frames=100):
         assert (
             0.0 <= local_ratio <= 1.0
         ), "local_ratio is a proportion. Must be between 0 and 1."
         scenario = Scenario()
-        world = scenario.make_world(N, False, [2, 4, 4])
+        world = scenario.make_world(groups=[5, 5, 5])
         super().__init__(scenario, world, max_frames, local_ratio)
 
 
