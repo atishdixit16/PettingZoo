@@ -15,11 +15,11 @@ class PettingZooWrapper(Env):
 
     metadata = {"render.modes": ["human", "rgb_array"]}
 
-    def __init__(self, lib_name, env_name):
+    def __init__(self, lib_name, env_name, **kwargs):
 
         PZEnv = importlib.import_module(f"pettingzoo.{lib_name}.{env_name}")
         print(PZEnv)
-        self._env = PZEnv.parallel_env()
+        self._env = PZEnv.parallel_env(**kwargs)
 
         n_agents = self._env.num_agents
 
