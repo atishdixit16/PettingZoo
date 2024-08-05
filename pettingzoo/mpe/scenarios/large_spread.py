@@ -31,6 +31,9 @@ class Scenario(BaseScenario):
             agent.silent = True
             agent.size = 0.15
 
+        # sparsity radius
+        self.sparsity = sparsity
+
         # add landmarks
         world.landmarks = [Landmark() for i in range(num_landmarks)]
         for i, landmark in enumerate(world.landmarks):
@@ -39,9 +42,6 @@ class Scenario(BaseScenario):
             landmark.movable = False
         return world
     
-        # sparsity radius
-        self.sparsity = sparsity
-
     def reset_world(self, world, np_random):
         # random properties for agents
 
