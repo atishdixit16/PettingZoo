@@ -4,7 +4,7 @@ from .._mpe_utils.scenario import BaseScenario
 import random
 
 class Scenario(BaseScenario):
-    def make_world(self, groups, cooperative=False, shuffle_obs=False):
+    def make_world(self, groups, cooperative=False, shuffle_obs=False, sparsity=100000):
         world = World()
         # set any world properties first
         world.dim_c = 2
@@ -38,6 +38,9 @@ class Scenario(BaseScenario):
             landmark.collide = False
             landmark.movable = False
         return world
+    
+        # sparsity radius
+        self.sparsity = sparsity
 
     def reset_world(self, world, np_random):
         # random properties for agents
@@ -98,6 +101,10 @@ class Scenario(BaseScenario):
                 )
             )
         )
+
+        # reward sparsity radius around the landmark
+        sparsity_radius = self.sparsity
+        rew = max(rew, -sparsity_radius)
 
         if self.cooperative:
             return 0
